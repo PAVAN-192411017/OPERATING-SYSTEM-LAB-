@@ -1,0 +1,36 @@
+import threading
+import time
+import random
+from queue import Queue
+
+# Shared buffer with max size
+buffer_size = 5
+buffer = Queue(maxsize=buffer_size)
+
+# Producer function
+def producer():
+    while True:
+        item = random.randint(1, 100)  # Produce a random item
+        buffer.put(item)  # Automatically waits if buffer is full
+        print(f"Produced: {item} | Buffer size: {buffer.qsize()}")
+        time.sleep(random.uniform(0.5, 1.5))  # Random delay
+
+# Consumer function
+def consumer():
+    while True:
+        item = buffer.get()  # Automatically waits if buffer is empty
+        print(f"Consumed: {item} | Buffer size: {buffer.qsize()}")
+        buffer.task_done()  # Signal that task is done
+        time.sleep(random.uniform(0.5, 2))  # Random delay
+
+# Create threads
+producer_thread = threading.Thread(target=producer)
+consumer_thread = threading.Thread(target=consumer)
+
+# Start threads
+producer_thread.start()
+consumer_thread.start()
+
+# Optional: Wait for threads (infinite loop in this case, so will run forever)
+producer_thread.join()
+consumer_thread.join()
